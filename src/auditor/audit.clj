@@ -14,13 +14,44 @@
 
 (ns ^{  :doc "com.sb.auditor :: audit"
       :author "Istvan Szukacs"  }
-auditor.cli
+auditor.audit
   (:require
     [clojure.tools.logging  :as   log   ]
     [auditor.iam            :as   iam   ]
+    [auditor.sts            :as   sts   ]
+    [auditor.auth           :as   auth  ]
+    )
+  (:import
+    [clojure.lang
+      PersistentArrayMap
+      PersistentList      ]
+    [com.amazonaws
+      AmazonServiceException  
+      ClientConfiguration ]
+    [com.amazonaws.auth   
+      AWSCredentials
+      BasicAWSCredentials ]
+    [com.amazonaws.auth.profile
+      ProfileCredentialsProvider]
+    [com.amazonaws.services.identitymanagement    
+      AmazonIdentityManagementAsyncClient]
     )
   (:gen-class))
 
-(def )
+;; this part can work two ways: either using a 
+;; credential (access key + secret key) or 
+;; using sts and getting a session that way
 
-(defn run [] :ok)
+(def audits [:get-account-summary iam/get-account-summary])
+
+(defn run-with-creds
+  "Runs audit with the supplied credentials"
+  [creds-file profile]
+  (let [creds           (auth/create-basic-aws-credentials-file creds-file profile)
+        iam-client      (iam/create-iam-async-client creds)
+        ;; audit first hm
+        account-summary (iam/get-account-summary iam-client)    ]
+
+    {:ok account-summary}))
+
+(defn run-with-sts [] :ok)

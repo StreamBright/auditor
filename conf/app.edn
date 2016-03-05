@@ -1,7 +1,7 @@
 { 
   :dev {
     :aws {
-      :credentials-file ".aws.edn" 
+      :credentials-file "~/.aws/credentials" 
       :s3 {
         :bucket :www.streambrightdata.com
         :folder "logs/"

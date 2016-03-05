@@ -12,26 +12,27 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns ^{  :doc "com.sb.auditor :: iam"
+(ns ^{  :doc "com.sb.auditor :: sts"
       :author "Istvan Szukacs"  }
-auditor.iam
+auditor.sts
   (:require
     [clojure.tools.logging  :as   log   ]
-    [clojure.walk           :as   walk  ])
-  (:import
-      [com.amazonaws.services.identitymanagement
-       AmazonIdentityManagementAsyncClient ]
-      )
+    [auditor.iam            :as   iam   ]
+    )
   (:gen-class))
 
-;AmazonIdentityManagement
-;;AbstractAmazonIdentityManagement, AbstractAmazonIdentityManagementAsync,
-;;AmazonIdentityManagementAsyncClient, AmazonIdentityManagementClient
-(defn create-iam-async-client
-  [creds]
-  (AmazonIdentityManagementAsyncClient. creds))
+(defn assume-role
+  [^String role]
+  ; returns the assumed-role object that
+  ; has the access key and secret key
+  ; addigned for this session as well
+  ; as the security token
+  ; STS -> AWS Security Token Service
+  :role)
 
-(defn get-account-summary
-  [iam-client]
-  (walk/keywordize-keys
-    (into {} (.getSummaryMap @(.getAccountSummaryAsync iam-client)))))
+; assumed_role = sts.assume_role(args.role, "SecAudit")
+; access_key_id = assumed_role.credentials.access_key
+; secret_access_key = assumed_role.credentials.secret_key
+; security_token = assumed_role.credentials.session_token
+
+(defn run [] :ok)

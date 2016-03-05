@@ -38,10 +38,14 @@
         config                                      (cli/process-config (:config options))
 
         env         (keyword (:env options))
+        creds-file  (str
+                      (System/getProperty "user.home")
+                      "/.aws/credentials")
+        profile     "default"
 
         ]
 
     ; main entry point for execution
     (log/info (str ":ok" " env " env))
-    (audit/run) ;running the audit
+    (audit/run-with-creds creds-file profile) ;running the audit
     (log/info "init :: stop")))
