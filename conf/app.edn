@@ -1,0 +1,12 @@
+{ 
+  :dev {
+    :aws {
+      :credentials-file ".aws.edn" 
+      :s3 {
+        :bucket :www.streambrightdata.com
+        :folder "logs/"
+        :region :us-east-1
+      }
+    }
+  }
+};end
