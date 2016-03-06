@@ -47,5 +47,6 @@
 
     ; main entry point for execution
     (log/info (str ":ok" " env " env))
-    (audit/run-with-creds creds-file profile) ;running the audit
-    (log/info "init :: stop")))
+    (log/info (audit/run-with-creds creds-file profile)) ;running the audit
+    (log/info "init :: stop"))
+    (System/exit 0))

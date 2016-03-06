@@ -47,11 +47,12 @@ auditor.audit
 (defn run-with-creds
   "Runs audit with the supplied credentials"
   [creds-file profile]
-  (let [creds           (auth/create-basic-aws-credentials-file creds-file profile)
-        iam-client      (iam/create-iam-async-client creds)
+  (let [^BasicAWSCredentials                  creds       (auth/create-basic-aws-credentials-file creds-file profile)
+        ^AmazonIdentityManagementAsyncClient  iam-client  (iam/create-iam-async-client creds)
         ;; audit first hm
-        account-summary (iam/get-account-summary iam-client)    ]
-
-    {:ok account-summary}))
+        account-summary (iam/get-account-summary iam-client)
+        get-all-users (map iam/get-user-details (iam/get-all-users iam-client))
+        ]
+    {:ok { :account-summary account-summary :szop get-all-users} }))
 
 (defn run-with-sts [] :ok)

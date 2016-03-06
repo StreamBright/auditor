@@ -19,19 +19,39 @@ auditor.iam
     [clojure.tools.logging  :as   log   ]
     [clojure.walk           :as   walk  ])
   (:import
-      [com.amazonaws.services.identitymanagement
-       AmazonIdentityManagementAsyncClient ]
-      )
+    [com.amazonaws.auth
+     BasicAWSCredentials ]
+    [com.amazonaws.services.identitymanagement
+     AmazonIdentityManagementAsyncClient ]
+    [com.amazonaws.services.identitymanagement.model
+     User]
+
+    )
   (:gen-class))
 
 ;AmazonIdentityManagement
 ;;AbstractAmazonIdentityManagement, AbstractAmazonIdentityManagementAsync,
 ;;AmazonIdentityManagementAsyncClient, AmazonIdentityManagementClient
 (defn create-iam-async-client
-  [creds]
+  ^AmazonIdentityManagementAsyncClient [^BasicAWSCredentials creds]
   (AmazonIdentityManagementAsyncClient. creds))
 
 (defn get-account-summary
-  [iam-client]
+  [^AmazonIdentityManagementAsyncClient iam-client]
   (walk/keywordize-keys
     (into {} (.getSummaryMap @(.getAccountSummaryAsync iam-client)))))
+
+
+(defn get-user-details [^User user]
+  { :arn                          (.getArn              user)
+    :create-date                  (.getCreateDate       user)
+    :get-password-last-updated    (.getPasswordLastUsed user)
+    :get-path                     (.getPath             user)
+    :get-user-id                  (.getUserId           user)
+   }
+  )
+
+(defn get-all-users
+  [iam-client]
+  (.getUsers @(.listUsersAsync iam-client)))
+
