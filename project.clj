@@ -54,5 +54,5 @@
              ;"-XX:StartFlightRecording=duration=60s,filename=myrecording.jfr"
              ;"-Xprof" "-Xrunhprof"
              ]
-  :repl-options {:init-ns auditor.audit}
+  :repl-options {:init-ns auditor.iam}
   :main auditor.core)

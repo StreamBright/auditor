@@ -50,9 +50,17 @@ auditor.audit
   (let [^BasicAWSCredentials                  creds       (auth/create-basic-aws-credentials-file creds-file profile)
         ^AmazonIdentityManagementAsyncClient  iam-client  (iam/create-iam-async-client creds)
         ;; audit first hm
-        account-summary (iam/get-account-summary iam-client)
-        get-all-users (map iam/get-user-details (iam/get-all-users iam-client))
+        account-summary   (iam/get-account-summary iam-client)
+        users             (iam/users->clj (iam/list-users iam-client))
+        groups            (iam/groups->clj (iam/list-groups iam-client))
+        user-polices      (iam/get-policies-users-all iam-client users)
+        group-policies    (iam/get-policies-groups-managed-all iam-client groups)
+
         ]
-    {:ok { :account-summary account-summary :szop get-all-users} }))
+    {:ok {  :account-summary  account-summary
+            :users            users
+            :groups           groups
+            :user-policies    user-polices
+            :group-policies   group-policies}}))
 
 (defn run-with-sts [] :ok)

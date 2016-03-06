@@ -17,7 +17,6 @@
 auditor.sts
   (:require
     [clojure.tools.logging  :as   log   ]
-    [auditor.iam            :as   iam   ]
     )
   (:gen-class))
 

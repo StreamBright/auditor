@@ -17,7 +17,6 @@
 auditor.auth
   (:require
     [clojure.tools.logging  :as   log   ]
-    [auditor.iam            :as   iam   ]
     [auditor.sts            :as   sts   ]
     )
   (:import
