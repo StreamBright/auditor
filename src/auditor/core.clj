@@ -18,35 +18,29 @@
         :author "Istvan Szukacs"      }
   auditor.core
   (:require
-    [auditor.cli              :as     cli                   ]
-    [auditor.audit            :as     audit                 ]
-    [clojure.tools.logging    :as     log                   ]
-    [clojure.edn              :as     edn                   ]
-    [clojure.string           :as     string                ]
-    )
-  (:import
-    [clojure.lang         PersistentArrayMap PersistentList ]
+    [auditor.cli              :as     cli     ]
+    [auditor.audit            :as     audit   ]
+    [clojure.tools.logging    :as     log     ]
+    [cheshire.core            :as     ches    ]
+    [clojure.java.io          :as     io      ]
     )
   (:gen-class))
 
 (defn -main
   [& args]
   (let [
-        ; CLI & Config
+        ;CLI & Config
         cli-options-parsed                          (cli/process-cli args cli/cli-options)
         {:keys [options arguments errors summary]}  cli-options-parsed
         config                                      (cli/process-config (:config options))
-
-        env         (keyword (:env options))
-        creds-file  (str
-                      (System/getProperty "user.home")
-                      "/.aws/credentials")
-        profile     "default"
-
+        env           (keyword (:env options))
+        creds-file    (str (System/getProperty "user.home") "/.aws/credentials")
+        profile       "audit-sb"
+        audit-return  (audit/run-with-creds creds-file profile)
         ]
-
     ; main entry point for execution
     (log/info (str ":ok" " env " env))
-    (log/info (audit/run-with-creds creds-file profile)) ;running the audit
+    (ches/generate-stream audit-return (io/writer "test.json"))
+    (log/info audit-return) ;running the audit
     (log/info "init :: stop"))
     (System/exit 0))

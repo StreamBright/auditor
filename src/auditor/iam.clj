@@ -27,13 +27,16 @@ auditor.iam
     [com.amazonaws.services.identitymanagement
      AmazonIdentityManagementAsyncClient]
     [com.amazonaws.services.identitymanagement.model
-     User Group AttachedPolicy
-     ListUsersRequest ListUsersResult
-     ListGroupsRequest ListGroupsResult
-     ListUserPoliciesRequest ListGroupPoliciesRequest
-     ListUserPoliciesResult ListGroupPoliciesResult
-     ListAttachedGroupPoliciesRequest ListAttachedGroupPoliciesResult
-     ]
+      User
+      Group
+      AttachedPolicy
+      ListUsersRequest                 ListUsersResult
+      ListGroupsRequest                ListGroupsResult
+      ListUserPoliciesRequest          ListUserPoliciesResult
+      ListAttachedUserPoliciesRequest  ListAttachedUserPoliciesResult
+      ListGroupPoliciesRequest         ListGroupPoliciesResult
+      ListAttachedGroupPoliciesRequest ListAttachedGroupPoliciesResult
+      ]
 
     )
   (:gen-class))
@@ -90,8 +93,8 @@ auditor.iam
        (list-users iam-client (.getUsers result) (.getMarker result)))))
   ; paging
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client acc marker]
-   (let [^ListUsersRequest users-request (.setMarker (ListUsersRequest.) marker)
-         ^ListUsersResult result @(.listUsersAsync iam-client users-request)]
+   (let [ ^ListUsersRequest request (doto (ListUsersRequest.) (.setMarker marker))
+          ^ListUsersResult  result  @(.listUsersAsync iam-client request) ]
      (if-not (.isTruncated result)
        ;return
        (.addAll acc (.getUsers result))
@@ -100,7 +103,7 @@ auditor.iam
 
 (defn list-groups
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client]
-   (let [^ListGroupsResult result @(.listGroupsAsync iam-client)]
+   (let [^ListGroupsResult result @(.listGroupsAsync iam-client) ]
      (if-not (.isTruncated result)
        ;return
        (.getGroups result)
@@ -108,35 +111,59 @@ auditor.iam
        (list-groups iam-client (.getGroups result) (.getMarker result)))))
   ; paging
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client acc marker]
-   (let [^ListGroupsRequest group-request (.setMarker (ListGroupsRequest.) marker)
-         ^ListGroupsResult result @(.listGroupsAsync iam-client group-request)]
+   (let [ ^ListGroupsRequest  request (.setMarker (ListGroupsRequest.) marker)
+          ^ListGroupsResult   result  @(.listGroupsAsync iam-client request) ]
      (if-not (.isTruncated result)
        ;return
        (.addAll acc (.getGroups result))
        ;recur
        (recur iam-client (.addAll acc (.getGroups result)) (.getMarker result))))))
 
-(defn list-user-policies
+(defn list-user-inline-policies
+  "Lists the names of the inline policies embedded in the specified user."
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String user-name]
-   (let [^ListUserPoliciesRequest request (ListUserPoliciesRequest.)
-         _ (.setUserName request user-name)
-         ^ListUserPoliciesResult result @(.listUserPoliciesAsync iam-client request)]
+   (let [ ^ListUserPoliciesRequest  request (doto (ListUserPoliciesRequest.) (.setUserName user-name))
+          ^ListUserPoliciesResult   result  @(.listUserPoliciesAsync iam-client request) ]
      (if-not (.isTruncated result)
        ;return
        (.getPolicyNames result)
        ;call the other signature
-       (list-user-policies iam-client user-name (.getPolicyNames result) (.getMarker result)))))
+       (list-user-inline-policies iam-client user-name (.getPolicyNames result) (.getMarker result)))))
   ; paging
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String user-name acc marker]
-   (let [^ListUserPoliciesRequest request (ListUserPoliciesRequest.)
-         _ (.setMarker request marker)
-         _ (.setUserName request user-name)
-         ^ListUserPoliciesResult result @(.listUserPoliciesAsync iam-client request)]
+   (let [ ^ListUserPoliciesRequest  request (doto (ListUserPoliciesRequest.)
+                                                    (.setMarker marker)
+                                                    (.setUserName user-name))
+          ^ListUserPoliciesResult   result  @(.listUserPoliciesAsync iam-client request) ]
      (if-not (.isTruncated result)
        ;return
        (.addAll acc (.getPolicyNames result))
        ;recur
        (recur iam-client user-name (.addAll acc (.getPolicyNames result)) (.getMarker result))))))
+
+
+(defn list-user-managed-policies
+  "Lists the names of the inline policies embedded in the specified user."
+  (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String user-name]
+   (let [ ^ListAttachedUserPoliciesRequest  request (doto (ListAttachedUserPoliciesRequest.) (.setUserName user-name))
+          ^ListAttachedUserPoliciesResult   result  @(.listAttachedUserPoliciesAsync iam-client request) ]
+     (if-not (.isTruncated result)
+       ;return
+       (.getAttachedPolicies result)
+       ;call the other signature
+       (list-user-managed-policies iam-client user-name (.getAttachedPolicies result) (.getMarker result)))))
+  ; paging
+  (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String user-name acc marker]
+   (let [ ^ListAttachedUserPoliciesRequest  request (doto (ListAttachedUserPoliciesRequest.)
+                                                            (.setMarker marker)
+                                                            (.setUserName user-name))
+         ^ListAttachedUserPoliciesResult    result  @(.listAttachedUserPoliciesAsync iam-client request) ]
+     (if-not (.isTruncated result)
+       ;return
+       (.addAll acc (.getAttachedPolicies result))
+       ;recur
+       (recur iam-client user-name (.addAll acc (.getAttachedPolicies result)) (.getMarker result))))))
+
 
 (defn list-group-inline-policies
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String group-name]
@@ -147,13 +174,13 @@ auditor.iam
        ;return
        (.getPolicyNames result)
        ;call the other signature
-       (list-user-policies iam-client group-name (.getPolicyNames result) (.getMarker result)))))
+       (list-group-inline-policies iam-client group-name (.getPolicyNames result) (.getMarker result)))))
   ; paging
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String group-name acc marker]
-   (let [^ListUserPoliciesRequest request (ListUserPoliciesRequest.)
-         _ (.setMarker    request marker)
-         _ (.setUserName  request group-name)
-         ^ListUserPoliciesResult result @(.listUserPoliciesAsync iam-client request)]
+   (let [^ListUserPoliciesRequest request (doto (ListUserPoliciesRequest.)
+                                                (.setMarker marker)
+                                                (.setUserName group-name))
+         ^ListUserPoliciesResult result @(.listUserPoliciesAsync iam-client request) ]
      (if-not (.isTruncated result)
        ;return
        (.addAll acc (.getPolicyNames result))
@@ -162,19 +189,19 @@ auditor.iam
 
 (defn list-group-managed-policies
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String group-name]
-   (let [^ListAttachedGroupPoliciesRequest request  (ListAttachedGroupPoliciesRequest.)
-                                           _        (.setGroupName request group-name)
+   (let [^ListAttachedGroupPoliciesRequest request  (doto (ListAttachedGroupPoliciesRequest.)
+                                                          (.setGroupName group-name))
          ^ListAttachedGroupPoliciesResult  result   @(.listAttachedGroupPoliciesAsync iam-client request) ]
      (if-not (.isTruncated result)
        ;return
        (.getAttachedPolicies result)
        ;call the other signature
-       (list-user-policies iam-client group-name (.getAttachedPolicies result) (.getMarker result)))))
+       (list-group-managed-policies iam-client group-name (.getAttachedPolicies result) (.getMarker result)))))
   ; paging
   (^SdkInternalList [^AmazonIdentityManagementAsyncClient iam-client ^String group-name acc marker]
-   (let [^ListAttachedGroupPoliciesRequest request  (ListAttachedGroupPoliciesRequest.)
-                                            _       (.setMarker    request marker)
-                                            _       (.setGroupName request group-name)
+   (let [^ListAttachedGroupPoliciesRequest request (doto  (ListAttachedGroupPoliciesRequest.)
+                                                          (.setMarker marker)
+                                                          (.setGroupName group-name))
          ^ListAttachedGroupPoliciesResult  result   @(.listUserPoliciesAsync iam-client request)  ]
      (if-not (.isTruncated result)
        ;return
@@ -202,14 +229,14 @@ auditor.iam
 
 ;; Synthetic niceties
 
-(defn get-policies-users-all
+(defn get-user-managed-policies
   [iam-client users]
   (into {} (map #(hash-map
                   (keyword %)
-                  (user-policies->clj (list-user-policies iam-client %)))
+                  (user-policies->clj (list-user-managed-policies iam-client %)))
                 (map :user-name users))))
 
-(defn get-policies-groups-managed-all
+(defn get-group-managed-policies
   [iam-client groups]
   (into {} (map #(hash-map
                 (keyword %)

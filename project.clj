@@ -14,19 +14,19 @@
 (defproject auditor "0.1.0"
   :description "AWS IAM auditing (managed and inline policies)"
   :url "https://github.com/StreamBright/auditor"
-  :license {:name "Apache License 2.0"
-            :url  "http://www.apache.org/licenses/LICENSE-2.0"}
+  :license {  :name "Apache License 2.0"
+              :url  "http://www.apache.org/licenses/LICENSE-2.0"  }
   :dependencies [
-                 [org.clojure/clojure "1.8.0"               ]
-                 [cheshire "5.5.0"                          ]
-                 [org.clojure/tools.cli "0.3.3"             ]
-                 [org.clojure/tools.logging "0.3.1"         ]
-                 [org.slf4j/slf4j-log4j12 "1.7.12"          ]
-                 [log4j/log4j "1.2.17"                      ]
+                 [org.clojure/clojure             "1.8.0"   ]
+                 [cheshire                        "5.5.0"   ]
+                 [org.clojure/tools.cli           "0.3.3"   ]
+                 [org.clojure/tools.logging       "0.3.1"   ]
+                 [org.slf4j/slf4j-log4j12         "1.7.12"  ]
+                 [log4j/log4j                     "1.2.17"  ]
                  [com.amazonaws/aws-java-sdk-core "1.10.58" ]
                  [com.amazonaws/aws-java-sdk-iam  "1.10.58" ]
                  [com.amazonaws/aws-java-sdk-s3   "1.10.58" ]
-                 [org.clojure/test.check "0.9.0"            ]
+                 [org.clojure/test.check          "0.9.0"   ]
                  ]
   :exclusions [
                javax.mail/mail
@@ -35,12 +35,7 @@
                com.sun.jmx/jmxri
                jline/jline
                ]
-  :profiles {
-             :uberjar {
-                       :aot :all
-                       }
-             }
-
+  :profiles {:uberjar {:aot :all}}
   :jvm-opts [
              "-Xms128m" "-Xmx256m"
              "-server" "-XX:+UseConcMarkSweepGC"
